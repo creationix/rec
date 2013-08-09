@@ -33,11 +33,12 @@ var options, command, args;
 if (!command || options.h || options.help) {
   console.error("\n  Usage:  rec [options] command [args...]\n");
   console.error("  Options:\n");
-  console.error("    -m --msgpack     Output MsgPack format (default)");
-  console.error("    -j --json        Output JSON format");
+  console.error("    -j --json        Output JSON format (default)");
+  console.error("    -m --msgpack     Output MsgPack format");
   console.error("    -g --gzip        Gzip output");
   console.error("    -p --play        Play back a recording");
   console.error("    -q --quiet       Suppress message at end");
+  console.error("    -c --clear       Clear screen before starting");
   console.error("    --name=filename  File to save to (default is 'out')");
   console.error();
   process.exit(-1);
