@@ -32,7 +32,7 @@ To install, first install [node.js][] and then `npm install -g rec`.
 ## Play Back a Terminalcast
 
 ```
-rec --play rec.msgpack
+> rec --play rec.msgpack
 ```
 
 [node.js]: http://nodejs.org/
