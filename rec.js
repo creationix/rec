@@ -38,7 +38,7 @@ var child = childProcess.spawn(command, args, {
 });
 child.stdout.on("data", function (chunk) {
   record(1, chunk);
-  // process.stdout.write(chunk);
+  process.stdout.write(chunk);
 });
 child.stderr.on("data", function (chunk) {
   record(2, chunk);
@@ -70,7 +70,6 @@ record(0, {
 });
 
 function record(event, value) {
-  console.log("RECORD", event, value);
   var time = Date.now();
   if (time !== last) {
     var delta = time - last;
