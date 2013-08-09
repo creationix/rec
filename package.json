@@ -19,5 +19,8 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/creationix/rec/issues"
+  },
+  "dependencies": {
+    "msgpack-js": "~0.3.0"
   }
 }
