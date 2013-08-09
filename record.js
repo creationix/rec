@@ -18,7 +18,14 @@ module.exports = function (options, command, args) {
   if (options.msgpack || options.m) path += ".msgpack";
   else path += ".json";
   if (options.gzip || options.g) path += ".gz";
-  var file = fs.createWriteStream(path);
+
+  var file;
+  if (options.s || options.stream) {
+    file = process.stdout;
+  }
+  else {
+    file = fs.createWriteStream(path);
+  }
   var output = file;
 
   var write;
@@ -56,7 +63,9 @@ module.exports = function (options, command, args) {
   }
   child.stdout.on("data", function (chunk) {
     record(1, chunk);
-    process.stdout.write(chunk);
+    if (!(options.s || options.stream)) {
+      process.stdout.write(chunk);
+    }
   });
   child.stderr.on("data", function (chunk) {
     record(2, chunk);
@@ -77,8 +86,8 @@ module.exports = function (options, command, args) {
     write(current);
     output.end();
     if (!(options.q || options.quiet)) {
-      console.log();
-      console.log("Recording written to " + path);
+      console.error();
+      console.error("Recording written to " + path);
     }
   });
 

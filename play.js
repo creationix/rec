@@ -79,7 +79,7 @@ module.exports = function (options, path) {
 
   function finish() {
     if (!(options.q || options.quiet)) {
-      console.log("\nFinished", meta)
+      console.error("\nFinished", meta)
     }
   }
 }
