@@ -16,7 +16,7 @@ module.exports = function (options, command, args) {
   if (options.msgpack) options.format = "msgpack";
   else options.format = "json";
 
-  var path = options.name || "rec";
+  var path = options.name || command + "-" + Date.now().toString(36);
   if (options.format === "json") path += ".json";
   else path += ".msgpack";
   if (options.gzip) path += ".gz";
