@@ -1,6 +1,6 @@
 {
   "name": "rec",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A tool for recording CLI programs and posting their output.",
   "bin": {
     "rec": "./rec.js"
