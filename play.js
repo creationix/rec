@@ -6,7 +6,7 @@ module.exports = function (options, path) {
   var input = file;
   if (path.substr(path.length - 3) === ".gz") {
     path = path.substr(0, path.length - 3);
-    var input = require('zlib').createGzip();
+    var input = require('zlib').createGunzip();
     file.pipe(input);
   }
 
