@@ -13,14 +13,16 @@ function uleb128(num) {
 }
 
 module.exports = function (options, command, args) {
+  if (options.msgpack) options.format = "msgpack";
+  else options.format = "json";
 
   var path = options.name || "rec";
-  if (options.msgpack || options.m) path += ".msgpack";
-  else path += ".json";
-  if (options.gzip || options.g) path += ".gz";
+  if (options.format === "json") path += ".json";
+  else path += ".msgpack";
+  if (options.gzip) path += ".gz";
 
   var file;
-  if (options.s || options.stream) {
+  if (options.stream) {
     file = process.stdout;
   }
   else {
@@ -29,7 +31,7 @@ module.exports = function (options, command, args) {
   var output = file;
 
   var write;
-  if (options.msgpack || options.m) {
+  if (options.format === "msgpack") {
     // uleb128 length header framed msgpack
     var msgpack = require('msgpack-js');
     write = function (item) {
@@ -45,25 +47,25 @@ module.exports = function (options, command, args) {
       return output.write(JSON.stringify(item) + "\n");
     };
   }
-  if (options.gzip || options.g) {
+  if (options.gzip) {
     var output = require('zlib').createGzip();
     output.pipe(file);
   }
   // Erase screen and move home
-  if (options.c || options.clear) {
+  if (options.clear) {
     process.stdout.write("\u001b[2J\u001b[H");
   }
 
   var child = childProcess.spawn(command, args, {
     stdio: [0, 'pipe', 'pipe']
   });
-  if (!(options.msgpack || options.m)) {
+  if (options.format === "json") {
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
   }
   child.stdout.on("data", function (chunk) {
     record(1, chunk);
-    if (!(options.s || options.stream)) {
+    if (!options.stream) {
       process.stdout.write(chunk);
     }
   });
@@ -84,9 +86,9 @@ module.exports = function (options, command, args) {
 
   child.on('close', function () {
     write(current);
-    if (!options.s || options.stream) {
+    if (!options.stream) {
       output.end();
-      if (!(options.q || options.quiet)) {
+      if (!(options.quiet)) {
         console.error();
         console.error("Recording written to " + path);
       }

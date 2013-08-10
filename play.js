@@ -2,23 +2,43 @@ var fs = require('fs');
 
 module.exports = function (options, path) {
 
-  var file = fs.createReadStream(path);
+  var file;
+  if (!path) {
+    options.stream = true;
+    file = process.stdin;
+  }
+  else {
+    file = fs.createReadStream(path);
+    if (path.substr(path.length - 3) === ".gz") {
+      path = path.substr(0, path.length - 3);
+      options.gzip = true;
+    }
+    if (path.substr(path.length - 5) === ".json" && options.json === undefined) {
+      options.json = true;
+    }
+    if (path.substr(path.length - 8) === ".msgpack" && options.msgpack === undefined) {
+      options.msgpack = true;
+    }
+  }
+  if (options.msgpack) options.format = "msgpack";
+  if (options.json) options.format = "json";
+  if (!options.format) throw new Error("Please specify an input encoding");
+
   var input = file;
-  if (path.substr(path.length - 3) === ".gz") {
-    path = path.substr(0, path.length - 3);
+  if (options.gzip) {
     var input = require('zlib').createGunzip();
     file.pipe(input);
   }
 
   var parser;
-  if (path.substr(path.length - 5) === ".json") {
+  if (options.format === "json") {
     parser = require('./jsonMachine.js');
   }
-  else if (path.substr(path.length - 8) === ".msgpack") {
+  else {
     parser = require('./msgpackMachine.js');
   }
 
-  if (options.c || options.clear) {
+  if (options.clear) {
     process.stdout.write("\u001b[2J\u001b[H");
   }
   var target = Date.now();
@@ -78,7 +98,7 @@ module.exports = function (options, path) {
   }
 
   function finish() {
-    if (!(options.q || options.quiet)) {
+    if (!options.quiet) {
       console.error("\nFinished", meta)
     }
   }
