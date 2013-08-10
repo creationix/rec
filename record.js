@@ -84,10 +84,12 @@ module.exports = function (options, command, args) {
 
   child.on('close', function () {
     write(current);
-    output.end();
-    if (!(options.q || options.quiet)) {
-      console.error();
-      console.error("Recording written to " + path);
+    if (!options.s || options.stream) {
+      output.end();
+      if (!(options.q || options.quiet)) {
+        console.error();
+        console.error("Recording written to " + path);
+      }
     }
   });
 
