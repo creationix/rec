@@ -1,4 +1,3 @@
-var fs = require('fs');
 
 module.exports = function (options, path) {
 
@@ -8,7 +7,7 @@ module.exports = function (options, path) {
     file = process.stdin;
   }
   else {
-    file = fs.createReadStream(path);
+    file = require('fs').createReadStream(path);
     if (path.substr(path.length - 3) === ".gz") {
       path = path.substr(0, path.length - 3);
       options.gzip = true;
@@ -30,12 +29,13 @@ module.exports = function (options, path) {
     file.pipe(input);
   }
 
-  var parser;
+  var decoder;
   if (options.format === "json") {
-    parser = require('./jsonMachine.js');
+    decoder = require('./json.js').decoder;
+    input.setEncoding('utf8');
   }
   else {
-    parser = require('./msgpackMachine.js');
+    decoder = require('./msgpack.js').decoder;
   }
 
   if (options.clear) {
@@ -47,7 +47,7 @@ module.exports = function (options, path) {
   var done = false;
   var waiting = null;
   var meta;
-  input.on("data", parser(function (item) {
+  input.on("data", decoder(function (item) {
     if (delay === null) {
       delay = item;
       return;

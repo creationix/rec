@@ -1,8 +1,24 @@
-var msgpack = require('msgpack-js');
+var encode = require('msgpack-js').encode;
+var decode = require('msgpack-js').decode;
 
-module.exports = parser;
+exports.encoder = encoder;
+function encoder(emit) {
+  return function (item) {
+    var chunk = encode(item);
+    var bytes = [];
+    var length = chunk.length;
+    while (length > 0x7f) {
+      bytes.push(length & 0x7f | 0x80);
+      length >>= 7;
+    }
+    bytes.push(length & 0x7f);
+    emit(new Buffer(bytes));
+    emit(chunk);
+  };
+}
 
-function parser(emit) {
+exports.decoder = decoder;
+function decoder(emit) {
   var left = 0;
   var offset = 0;
   var parts = null;
@@ -20,7 +36,7 @@ function parser(emit) {
         left -= len;
         i += len - 1;
         if (!left) {
-          var item = msgpack.decode(Buffer.concat(parts));
+          var item = decode(Buffer.concat(parts));
           parts = null;
           offset = 0;
           emit(item);
@@ -29,3 +45,4 @@ function parser(emit) {
     }
   };
 }
+

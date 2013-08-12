@@ -30,22 +30,12 @@ module.exports = function (options, command, args) {
   }
   var output = file;
 
-  var write;
+  var encoder;
   if (options.format === "msgpack") {
-    // uleb128 length header framed msgpack
-    var msgpack = require('msgpack-js');
-    write = function (item) {
-      var serialized = msgpack.encode(item);
-
-      output.write(uleb128(serialized.length));
-      return output.write(serialized);
-    };
+    encoder = require('./msgpack.js').encoder;
   }
   else {
-    // Newline framed JSON
-    write = function (item) {
-      return output.write(JSON.stringify(item) + "\n");
-    };
+    encoder = require('./json.js').encoder;
   }
   if (options.gzip) {
     var output = require('zlib').createGzip();
@@ -55,6 +45,10 @@ module.exports = function (options, command, args) {
   if (options.clear) {
     process.stdout.write("\u001b[2J\u001b[H");
   }
+
+  var write = encoder(function (chunk) {
+    output.write(chunk);
+  });
 
   var child = childProcess.spawn(command, args, {
     stdio: [0, 'pipe', 'pipe']
@@ -104,6 +98,7 @@ module.exports = function (options, command, args) {
     platform: process.platform,
     arch: process.arch
   });
+
 
   function record(event, value) {
     var time = Date.now();
